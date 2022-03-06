@@ -99,7 +99,7 @@ font-family: 'Syne Mono', monospace; -->
                                         alt="Error"></div>
                               <div class="col-9  d-flex flex-column justify-content-center align-items-center"
                                    id="playing_music">
-                                   <p class="fw-bold">Ek tu hi to hai</p>
+                                   <p>Ek tu hi to hai</p>
                                    <audio controls>
                                         <source src="https://pagalworld.com.se/files/download/id/5034"
                                              type="audio/mpeg">
@@ -132,7 +132,9 @@ font-family: 'Syne Mono', monospace; -->
 
                playMusic = {
                     start: true,
-                    play: true
+                    play: true,
+                    song_id: 0,
+                    list_click:false
                }
 
                // SENDING REQUEST // 
@@ -141,7 +143,7 @@ font-family: 'Syne Mono', monospace; -->
                     if (this.readyState == 4 && this.status == 200) {
                          data = JSON.parse(xhttp.responseText);
                          Array.from(data).map((element, index) => {
-                              ul.innerHTML += `<li data-URL="${data[index].URL}" class="my-2"><div class="row border border-top-0 ">
+                              ul.innerHTML += `<li data-URL="${data[index].URL}" data-ID="${data[index].id}" class="my-2"><div class="row border border-top-0 ">
                          <div class="col-3"><img class="w-75 rounded-circle" src="${data[index].img}" alt="Error"></div>
                          <div class="col-9 my-auto">${data[index].name}</div></li>`
                          })
@@ -150,8 +152,9 @@ font-family: 'Syne Mono', monospace; -->
                          let list = document.getElementsByTagName("li");
                          Array.from(list).forEach(item => {
                               item.addEventListener("click", () => {
+                                   playMusic.list_click = true
+                                   playMusic.song_id = parseInt(item.dataset.id)
                                    playing_img.src = item.getElementsByTagName("img")[0].src
-
                                    playing_music.innerHTML = `<p>${item.innerText}</p>
                                                                  <audio controls><source src="${item.dataset.url}" type="audio/mp3">
                                                                       </audio>`
@@ -160,18 +163,19 @@ font-family: 'Syne Mono', monospace; -->
                                         document.getElementById('pause').getElementsByTagName('i')[0].classList.add("fa-pause")
                                         playMusic.play = false
                                    }
-                                   document.getElementsByTagName('audio')[0].play()
+                                   // document.getElementsByTagName('audio')[0].play()
                               })
                          })
 
                     }
                };
-               xhttp.open("GET", "./music.json", true);
+               xhttp.open("GET", "./music.json", false);
                xhttp.send();
 
                Array.from(buttons).forEach(item => {
+                    let list = document.getElementsByTagName("li");
+                    let listArr = Array.from(list)
                     item.addEventListener("click", () => {
-                         console.log(item.value)
                          if (item.value === 'pause') {
                               if (playMusic.play) {
                                    document.getElementsByTagName('audio')[0].play()
@@ -187,9 +191,82 @@ font-family: 'Syne Mono', monospace; -->
                          }
                          else if (item.value === 'Next') {
                               
+                              if (playMusic.song_id <= 0) {
+                                   
+                                   playing_img.src = listArr[playMusic.song_id+1].getElementsByTagName("img")[0].src
+                                   playing_music.innerHTML = `<p>${listArr[playMusic.song_id+1].innerText}</p>
+                                                                 <audio controls><source src="${listArr[playMusic.song_id+1].dataset.url}" type="audio/mp3">
+                                                                      </audio>`
+                                                                      
+                                                                      if (playMusic.play) {
+                                                                           document.getElementById('pause').getElementsByTagName('i')[0].classList.remove("fa-play")
+                                        document.getElementById('pause').getElementsByTagName('i')[0].classList.add("fa-pause")
+                                        playMusic.play = false
+                                   }
+                                   document.getElementsByTagName('audio')[0].play()
+                                   if(!playMusic.list_click){
+                                        playMusic.song_id += 2
+                                   }else{
+                                        playMusic.song_id += 1
+                                   }
+                                   console.log(playMusic.song_id)
+                            
+                              }
+                              else{
+                                  
+                                   playing_img.src = listArr[playMusic.song_id].getElementsByTagName("img")[0].src
+                                   playing_music.innerHTML = `<p>${listArr[playMusic.song_id].innerText}</p>
+                                                                 <audio controls><source src="${listArr[playMusic.song_id].dataset.url}" type="audio/mp3">
+                                                                      </audio>`
+
+                                   if (playMusic.play) {
+                                        document.getElementById('pause').getElementsByTagName('i')[0].classList.remove("fa-play")
+                                        document.getElementById('pause').getElementsByTagName('i')[0].classList.add("fa-pause")
+                                        playMusic.play = false
+                                   }
+                                   document.getElementsByTagName('audio')[0].play()
+                                   playMusic.song_id += 1
+                                   if(playMusic.song_id === 10){
+                                        playMusic.song_id = -1
+                                   }
+                                   console.log(playMusic.song_id)
+                              }
+                              // console.log(listArr[1].getElementsByTagName("img")[0].src)
                          }
                          else {
+                              if (playMusic.song_id === 0) {
+                                   
+                                   playing_img.src = listArr[9].getElementsByTagName("img")[0].src
+                                   playing_music.innerHTML = `<p>${listArr[9].innerText}</p>
+                                                                 <audio controls><source src="${listArr[9].dataset.url}" type="audio/mp3">
+                                                                      </audio>`
 
+                                   if (playMusic.play) {
+                                        document.getElementById('pause').getElementsByTagName('i')[0].classList.remove("fa-play")
+                                        document.getElementById('pause').getElementsByTagName('i')[0].classList.add("fa-pause")
+                                        playMusic.play = false
+                                   }
+                                   document.getElementsByTagName('audio')[0].play()
+                                   playMusic.song_id = 9
+                                   console.log(playMusic.song_id)
+                              }
+                              else{
+                                  
+                                        playMusic.song_id -= 1
+                                   console.log(playMusic.song_id)
+                                   playing_img.src = listArr[playMusic.song_id].getElementsByTagName("img")[0].src
+                                   playing_music.innerHTML = `<p>${listArr[playMusic.song_id].innerText}</p>
+                                   <audio controls><source src="${listArr[playMusic.song_id].dataset.url}" type="audio/mp3">
+                                        </audio>`
+                                        
+                                        if (playMusic.play) {
+                                             document.getElementById('pause').getElementsByTagName('i')[0].classList.remove("fa-play")
+                                             document.getElementById('pause').getElementsByTagName('i')[0].classList.add("fa-pause")
+                                             playMusic.play = false
+                                        }
+                                        document.getElementsByTagName('audio')[0].play()
+                                        
+                              }
                          }
                     })
                })
